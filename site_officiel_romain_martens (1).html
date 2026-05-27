@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Romain Martens — Réalisateur Audiovisuel</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Syne, Inter, Cinzel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Tone.js pour la synthèse sonore d'ambiance -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        syne: ['Syne', 'sans-serif'],
+                        serif: ['Cinzel', 'serif']
+                    },
+                    colors: {
+                        cinered: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            800: '#991b1b',
+                            900: '#7f1d1d',
+                            neon: '#ff0f31'
+                        },
+                        darkspace: {
+                            900: '#050505',
+                            800: '#0d0d0d',
+                            700: '#151515',
+                            600: '#1f1f1f'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-red': '0 0 20px rgba(255, 15, 49, 0.4)',
+                        'neon-red-strong': '0 0 35px rgba(255, 15, 49, 0.7)',
+                        'cinematic': '0 20px 40px rgba(0,0,0,0.8)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f1f1f;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff0f31;
+        }
+
+        /* Ambient glowing dots */
+        .neon-glow-spot {
+            filter: blur(120px);
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* Film grain canvas styling */
+        #grainCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.06;
+            pointer-events: none;
+        }
+
+        /* 3D Perspective for Book */
+        .book-container {
+            perspective: 1000px;
+        }
+        .book {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .book-container:hover .book {
+            transform: rotateY(-25deg) rotateX(5deg);
+        }
+    </style>
+</head>
+<body class="bg-darkspace-900 text-gray-100 font-sans antialiased overflow-x-hidden relative">
+
+    <!-- Ambient Glow Effects -->
+    <div class="fixed top-1/4 left-10 w-96 h-96 bg-cinered-neon neon-glow-spot rounded-full"></div>
+    <div class="fixed bottom-1/4 right-10 w-[500px] h-[500px] bg-cinered-neon neon-glow-spot rounded-full"></div>
+
+    <!-- TOP NAVIGATION BAR -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-darkspace-900/80 backdrop-blur-md border-b border-white/5 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center space-x-3 group">
+                <span class="font-serif text-lg md:text-xl tracking-widest text-white group-hover:text-cinered-neon transition-colors duration-300 uppercase">
+                    Romain <span class="text-cinered-neon group-hover:text-white transition-colors duration-300">Martens</span>
+                </span>
+                <span class="h-4 w-px bg-white/20"></span>
+                <span class="text-xs uppercase tracking-widest text-gray-400 font-medium hidden sm:inline">Réalisateur Audiovisuel</span>
+            </a>
+
+            <!-- Desktop Menu Options -->
+            <div class="hidden lg:flex items-center space-x-6 xl:space-x-8 text-[11px] uppercase tracking-widest font-medium text-gray-300">
+                <a href="#hero" class="hover:text-cinered-neon transition-colors">Intro</a>
+                <a href="#bio" class="hover:text-cinered-neon transition-colors">Qui suis-je</a>
+                <a href="#films" class="hover:text-cinered-neon transition-colors">Films</a>
+                <a href="#entracte" class="hover:text-cinered-neon transition-colors">L'Entracte</a>
+                <a href="#triangle-rouge" class="hover:text-cinered-neon transition-colors">Livre</a>
+                <a href="#boutique" class="hover:text-cinered-neon transition-colors">Boutique</a>
+                <a href="#futur" class="hover:text-cinered-neon transition-colors">Timeline</a>
+                <a href="#soutenir" class="hover:text-cinered-neon transition-colors">Soutenir</a>
+                <a href="#contact" class="hover:text-cinered-neon transition-colors">Contact</a>
+            </div>
+
+            <!-- Header Interaction Items -->
+            <div class="flex items-center space-x-4">
+                <!-- Cinematic Hum Audio Controller -->
+                <button id="audioToggle" onclick="toggleCinemaDrone()" class="relative group p-2.5 rounded-full bg-darkspace-800 border border-white/10 hover:border-cinered-neon transition-all duration-300" title="Activer l'ambiance sonore du cinéma">
+                    <span class="absolute -top-1 -right-1 flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cinered-neon opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-cinered-neon"></span>
+                    </span>
+                    <i id="audioIcon" class="fa-solid fa-volume-xmark text-gray-400 group-hover:text-cinered-neon transition-colors"></i>
+                </button>
+
+                <!-- Floating Shopping Cart Trigger -->
+                <button onclick="toggleCartDrawer()" class="relative p-2.5 rounded-full bg-darkspace-800 border border-white/10 hover:border-cinered-neon transition-all duration-300" title="Ouvrir le Panier">
+                    <i class="fa-solid fa-bag-shopping text-gray-300"></i>
+                    <span id="cartCount" class="absolute -top-1 -right-1 bg-cinered-neon text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border border-darkspace-900 hidden">0</span>
+                </button>
+
+                <!-- Mobile Navigation Trigger -->
+                <button onclick="toggleMobileNav()" class="lg:hidden p-2 text-gray-300 hover:text-cinered-neon transition-colors focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MOBILE NAVIGATION MENU -->
+    <div id="mobileMenu" class="fixed inset-0 z-40 bg-darkspace-900/95 backdrop-blur-lg flex flex-col justify-center items-center space-y-8 text-xl tracking-widest uppercase font-serif transition-all duration-500 opacity-0 pointer-events-none">
+        <button onclick="toggleMobileNav()" class="absolute top-6 right-6 p-4 text-gray-400 hover:text-cinered-neon transition-colors">
+            <i class="fa-solid fa-xmark text-2xl"></i>
+        </button>
+        <a href="#hero" onclick="toggleMobileNav()" class="hover:text-cinered-neon transition-colors">Intro</a>
+        <a href="#bio" onclick="toggleMobileNav()" class="hover:text-cinered-neon transition-colors">Qui suis-je</a>
+        <a href="#films" onclick="toggleMobileNav()" class="hover:text-cinered-neon transition-colors">Films</a>
+        <a href="#entracte" onclick="toggleMobileNav()" class="hover:text-cinered-neon transition-colors">L'Entracte</a>
+        <a href="#triangle-rouge" onclick="toggleMobileNav()" class="hover:text-cinered-neon transition-colors">Livre</a>
+        <a href="#boutique" onclick="toggleMobileNav()" class="hover:text-cinered-neon transition-colors">Boutique</a>
+        <a href="#futur" onclick="toggleMobileNav()" class="hover:text-cinered-neon transition-colors">Timeline</a>
+        <a href="#soutenir" onclick="toggleMobileNav()" class="hover:text-cinered-neon transition-colors">Soutenir</a>
+        <a href="#contact" onclick="toggleMobileNav()" class="hover:text-cinered-neon transition-colors">Contact</a>
+    </div>
+
+    <!-- SECTION 1: HERO (INTRO CINÉMATOGRAPHIQUE) -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-12">
+        <!-- Interactive Film Grain Canvas Overlay -->
+        <canvas id="grainCanvas"></canvas>
+
+        <!-- Dynamic Dark Backdrop Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-darkspace-900 via-darkspace-900/60 to-transparent z-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-darkspace-900/80 via-transparent to-darkspace-900/80 z-10"></div>
+
+        <!-- Cinema Background Loop -->
+        <div class="absolute inset-0 z-0">
+            <div id="starryBackground" class="w-full h-full bg-cover bg-center opacity-30 scale-105 transition-transform duration-10000 ease-out" style="background-image: url('484274417_1976353416224437_4043052898013058694_n.jpg');"></div>
+        </div>
+
+        <!-- Hero Content container -->
+        <div class="relative z-20 max-w-4xl mx-auto px-6 text-center mt-6">
+            <span class="text-[10px] md:text-xs tracking-[0.4em] uppercase text-cinered-neon font-bold mb-4 inline-block drop-shadow-[0_0_8px_rgba(255,15,49,0.5)]">PROJET CINÉMA 2026 EN PRODUCTION</span>
+            <h1 class="font-serif text-3xl sm:text-4xl md:text-6xl lg:text-7xl tracking-wider text-white mb-6 uppercase leading-tight">
+                Romain Martens<br>
+                <span class="font-sans font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-300 to-cinered-neon text-xl sm:text-2xl md:text-3xl lg:text-4xl block mt-2">Réalisateur Audiovisuel</span>
+            </h1>
+            <p class="text-sm sm:text-base md:text-xl lg:text-2xl text-gray-300 font-light max-w-2xl mx-auto mb-10 tracking-wide leading-relaxed">
+                « Bienvenue dans mon univers où la lumière se mêle aux ténèbres. »
+            </p>
+
+            <!-- Navigation / Engagement Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+                <a href="#films" class="w-full sm:w-auto px-6 py-3.5 bg-cinered-neon hover:bg-cinered-800 text-white font-semibold text-[11px] uppercase tracking-widest rounded-none shadow-neon-red hover:shadow-neon-red-strong transition-all duration-300">
+                    <i class="fa-solid fa-play mr-2 text-[9px]"></i> Voir mes films
+                </a>
+                <a href="#triangle-rouge" class="w-full sm:w-auto px-6 py-3.5 bg-white hover:bg-gray-200 text-darkspace-900 font-semibold text-[11px] uppercase tracking-widest rounded-none transition-all duration-300">
+                    Le Triangle Rouge <i class="fa-solid fa-book-open ml-2"></i>
+                </a>
+                <a href="#boutique" class="w-full sm:w-auto px-6 py-3.5 bg-transparent hover:bg-white/5 border border-white/20 text-white font-semibold text-[11px] uppercase tracking-widest rounded-none transition-all duration-300">
+                    Boutique
+                </a>
+            </div>
+        </div>
+
+        <!-- Cinema Scroll Down Indicator (Interactive) -->
+        <a href="#bio" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex flex-col items-center group cursor-pointer transition-all duration-300">
+            <span class="text-[9px] uppercase tracking-[0.3em] text-gray-500 group-hover:text-cinered-neon mb-2 transition-colors">Faire Défiler</span>
+            <div class="w-[1px] h-12 bg-gradient-to-b from-white to-transparent group-hover:from-cinered-neon animate-pulse"></div>
+        </a>
+    </section>
+
+    <!-- SECTION 2: QUI SUIS-JE (BIOGRAPHIE) -->
+    <section id="bio" class="py-24 relative bg-darkspace-900 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                
+                <!-- Left Portrait Column with Neon Outline -->
+                <div class="lg:col-span-5 relative">
+                    <div class="absolute inset-0 border border-cinered-neon transform translate-x-4 translate-y-4 z-0 opacity-50 shadow-neon-red"></div>
+                    <div class="relative z-10 overflow-hidden bg-darkspace-800 border border-white/10 shadow-cinematic group">
+                        <img id="bioPortrait" class="w-full h-[500px] object-cover filter grayscale hover:grayscale-0 transition-all duration-1000 scale-100 group-hover:scale-105" src="490066799_1997592627433849_6958621222076476441_n.jpg" alt="Portrait Romain Martens" onerror="this.src='https://placehold.co/600x800/121212/ef4444?text=Romain+Martens'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-darkspace-900 via-transparent to-transparent opacity-60"></div>
+                    </div>
+                </div>
+
+                <!-- Right Biography & Storytelling Column -->
+                <div class="lg:col-span-7 space-y-8">
+                    <div class="space-y-4">
+                        <span class="text-xs tracking-[0.3em] uppercase text-cinered-neon font-semibold">DERRIÈRE LA CAMÉRA</span>
+                    </div>
+
+                    <p class="text-gray-300 font-light leading-relaxed text-base md:text-lg mb-4">
+                        Je me présente Romain Martens, réalisateur et créateur de cinéma indépendant belge. Mon travail s’inscrit dans une démarche de cinéma d’auteur, où je développe des récits sensibles, immersifs et ancrés dans une recherche d’identité visuelle et narrative.
+                    </p>
+                    <p class="text-gray-300 font-light leading-relaxed text-base md:text-lg mb-4">
+                        Je réalise des films, dont un long-métrage et plusieurs courts-métrages, qui me permettent d’explorer différentes formes de narration et d’affiner un langage cinématographique personnel.
+                    </p>
+                    <p class="text-gray-300 font-light leading-relaxed text-base md:text-lg">
+                        En parallèle de mes projets de réalisation, je suis installé en Belgique et engagé dans le développement de projets culturels autour du cinéma indépendant. J’ai notamment initié L'Entracte Cinéma, un rendez-vous dédié au cinéma indépendant. On y propose des projections, des rencontres avec des réalisateurs et des acteurs, ainsi que des échanges avec le public. Y sont également invités des professionnels du secteur — producteurs, formateurs et intervenants du monde du cinéma — afin de favoriser les collaborations artistiques et de contribuer à rendre le milieu cinématographique plus accessible, en abolissant certaines barrières entre passionnés et professionnels.
+                    </p>
+
+                    <!-- Interactive Citation Marquante / Script book -->
+                    <div class="border-l-2 border-cinered-neon pl-6 py-2 my-4 bg-darkspace-800/50 p-6 rounded-r-lg">
+                        <span class="text-xs text-cinered-neon uppercase tracking-wider block mb-2"><i class="fa-solid fa-clapperboard mr-2"></i> Ma Vision Artistique</span>
+                        <p id="quoteBox" class="text-white font-medium italic text-lg leading-relaxed transition-opacity duration-500">
+                            "Si quelque chose n'existe pas, parfait, crée-le !"
+                        </p>
+                        <button onclick="changeQuote()" class="mt-4 text-[10px] tracking-wider uppercase text-gray-500 hover:text-cinered-neon transition-colors">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> Citation Suivante
+                        </button>
+                    </div>
+
+                    <!-- Festival Laurels Block -->
+                    <div class="pt-6 border-t border-white/5 space-y-4">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 block font-medium">Récompenses & Sélections</span>
+                        <div class="flex flex-wrap gap-6 items-center">
+                            <div class="flex items-center space-x-2 text-gray-300 hover:text-cinered-neon transition-colors duration-300">
+                                <i class="fa-solid fa-award text-xl"></i>
+                                <span class="text-xs uppercase tracking-wider">Prix de l'Audace Visuelle (2025)</span>
+                            </div>
+                            <div class="flex items-center space-x-2 text-gray-300 hover:text-cinered-neon transition-colors duration-300">
+                                <i class="fa-solid fa-award text-xl"></i>
+                                <span class="text-xs uppercase tracking-wider">Cannes Short Corner Selection</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: MES FILMS (GALERIE IMMERSIVE) -->
+    <section id="films" class="py-24 bg-darkspace-800 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            
+            <div class="flex flex-col md:flex-row justify-between items-baseline mb-16 gap-4">
+                <div class="space-y-4">
+                    <span class="text-xs tracking-[0.3em] uppercase text-cinered-neon font-semibold">FILMOGRAPHIE SÉLECTIONNÉE</span>
+                </div>
+                <!-- Categories filter -->
+                <div class="flex gap-4 text-xs uppercase tracking-widest text-gray-400">
+                    <button class="text-cinered-neon border-b border-cinered-neon pb-1">Tous</button>
+                    <button class="hover:text-white transition-colors">Courts-Métrages</button>
+                    <button class="hover:text-white transition-colors">Expérimental</button>
+                </div>
+            </div>
+
+            <!-- Movies Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                
+                <!-- Film 1: Laura -->
+                <div class="bg-darkspace-900 border border-white/5 shadow-cinematic group overflow-hidden flex flex-col">
+                    <div class="relative h-[420px] overflow-hidden">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" src="LAURA (1).jpg" alt="Affiche Laura">
+                        <div class="absolute inset-0 bg-gradient-to-t from-darkspace-900 via-darkspace-900/30 to-transparent opacity-80"></div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60">
+                            <button onclick="openTrailerModal('Laura', '#')" class="h-14 w-14 rounded-full bg-cinered-neon flex items-center justify-center shadow-neon-red text-white transform scale-90 group-hover:scale-100 transition-all duration-300">
+                                <i class="fa-solid fa-play text-lg ml-0.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-cinered-neon uppercase tracking-wider mb-2">
+                                <span>Drame</span>
+                                <span>2024</span>
+                            </div>
+                            <h3 class="font-serif text-xl text-white mb-2 tracking-wide">Laura</h3>
+                        </div>
+                        <div class="flex gap-4 mt-4">
+                            <button onclick="rentFilm('Laura', 1.00)" class="flex-1 py-3 text-center bg-cinered-neon hover:bg-cinered-800 text-white text-xs uppercase tracking-widest font-semibold shadow-neon-red transition-all duration-300">
+                                Louer (1,00 €)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Film 2: Mr. Sanchez -->
+                <div class="bg-darkspace-900 border border-white/5 shadow-cinematic group overflow-hidden flex flex-col">
+                    <div class="relative h-[420px] overflow-hidden">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" src="sanchez.jpg" alt="Affiche Mr. Sanchez">
+                        <div class="absolute inset-0 bg-gradient-to-t from-darkspace-900 via-darkspace-900/30 to-transparent opacity-80"></div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60">
+                            <button onclick="openTrailerModal('Mr. Sanchez', '#')" class="h-14 w-14 rounded-full bg-cinered-neon flex items-center justify-center shadow-neon-red text-white transform scale-90 group-hover:scale-100 transition-all duration-300">
+                                <i class="fa-solid fa-play text-lg ml-0.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-cinered-neon uppercase tracking-wider mb-2">
+                                <span>Drame</span>
+                                <span>2024</span>
+                            </div>
+                            <h3 class="font-serif text-xl text-white mb-2 tracking-wide">Mr. Sanchez</h3>
+                        </div>
+                        <div class="flex gap-4 mt-4">
+                            <button onclick="rentFilm('Mr. Sanchez', 1.00)" class="flex-1 py-3 text-center bg-cinered-neon hover:bg-cinered-800 text-white text-xs uppercase tracking-widest font-semibold shadow-neon-red transition-all duration-300">
+                                Louer (1,00 €)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Film 3: Thomas -->
+                <div class="bg-darkspace-900 border border-white/5 shadow-cinematic group overflow-hidden flex flex-col">
+                    <div class="relative h-[420px] overflow-hidden">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" src="THOMAS AFFICHE.jpg" alt="Affiche Thomas">
+                        <div class="absolute inset-0 bg-gradient-to-t from-darkspace-900 via-darkspace-900/30 to-transparent opacity-80"></div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60">
+                            <button onclick="openTrailerModal('Thomas', '#')" class="h-14 w-14 rounded-full bg-cinered-neon flex items-center justify-center shadow-neon-red text-white transform scale-90 group-hover:scale-100 transition-all duration-300">
+                                <i class="fa-solid fa-play text-lg ml-0.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-cinered-neon uppercase tracking-wider mb-2">
+                                <span>Drame</span>
+                                <span>2024</span>
+                            </div>
+                            <h3 class="font-serif text-xl text-white mb-2 tracking-wide">Thomas</h3>
+                        </div>
+                        <div class="flex gap-4 mt-4">
+                            <button onclick="rentFilm('Thomas', 1.00)" class="flex-1 py-3 text-center bg-cinered-neon hover:bg-cinered-800 text-white text-xs uppercase tracking-widest font-semibold shadow-neon-red transition-all duration-300">
+                                Louer (1,00 €)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Film 4: Coup de Sang -->
+                <div class="bg-darkspace-900 border border-white/5 shadow-cinematic group overflow-hidden flex flex-col">
+                    <div class="relative h-[420px] overflow-hidden">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" src="614141864_2223542381505538_1166260093321058615_n.jpg" alt="Affiche Coup de Sang">
+                        <div class="absolute inset-0 bg-gradient-to-t from-darkspace-900 via-darkspace-900/30 to-transparent opacity-80"></div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60">
+                            <button onclick="openTrailerModal('Coup de Sang', '#')" class="h-14 w-14 rounded-full bg-cinered-neon flex items-center justify-center shadow-neon-red text-white transform scale-90 group-hover:scale-100 transition-all duration-300">
+                                <i class="fa-solid fa-play text-lg ml-0.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-cinered-neon uppercase tracking-wider mb-2">
+                                <span>Thriller</span>
+                                <span>2025</span>
+                            </div>
+                            <h3 class="font-serif text-xl text-white mb-2 tracking-wide">Coup de Sang</h3>
+                        </div>
+                        <div class="flex gap-4 mt-4">
+                            <button onclick="rentFilm('Coup de Sang', 1.00)" class="flex-1 py-3 text-center bg-cinered-neon hover:bg-cinered-800 text-white text-xs uppercase tracking-widest font-semibold shadow-neon-red transition-all duration-300">
+                                Louer (1,00 €)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FLOATING SHOPPING CART DRAWER PANEL -->
+    <div id="cartDrawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-darkspace-900 border-l border-white/10 z-50 transform translate-x-full transition-transform duration-500 ease-in-out shadow-cinematic">
+        <div class="h-full flex flex-col justify-between p-8">
+            <div>
+                <div class="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
+                    <h3 class="font-serif text-lg uppercase tracking-wider text-white"><i class="fa-solid fa-cart-shopping mr-2 text-cinered-neon"></i> Ton Panier</h3>
+                    <button onclick="toggleCartDrawer()" class="text-gray-400 hover:text-cinered-neon transition-colors p-2">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+                <!-- Dynamic Items Stack -->
+                <div id="cartItemsContainer" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                    <!-- Dynamic Cart Items injected here by JavaScript -->
+                    <p class="text-gray-400 text-sm italic py-4">Le panier est vide pour l'instant.</p>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/5 pt-6 space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400">Sous-total</span>
+                    <span id="cartTotalPrice" class="text-xl font-bold text-white">0,00 €</span>
+                </div>
+                <button onclick="checkoutSimulate()" class="w-full py-4 bg-cinered-neon hover:bg-cinered-800 text-white font-semibold text-xs uppercase tracking-widest shadow-neon-red transition-all duration-300">
+                    Procéder au Paiement Sécurisé
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 6: PROJETS FUTURS -->
+    <section id="futur" class="py-24 bg-darkspace-900 relative">
+        <div class="max-w-4xl mx-auto px-6">
+            
+            <div class="space-y-4 mb-16 text-center">
+                <span class="text-xs tracking-[0.3em] uppercase text-cinered-neon font-semibold">HORIZONS PROCHAINES</span>
+                <h2 class="font-serif text-3xl md:text-5xl text-white uppercase tracking-wider">Carnet de Production</h2>
+            </div>
+
+            <!-- Interactive Production Timeline -->
+            <div class="relative border-l border-white/10 pl-6 ml-4 md:ml-0 md:pl-0 md:border-l-0 md:grid md:grid-cols-2 md:gap-8 before:absolute before:top-0 before:bottom-0 before:left-1/2 before:w-px before:bg-white/10 before:hidden md:before:block">
+                
+                <!-- Timeline Item 1 -->
+                <div class="relative pb-12 md:pb-0 md:text-right md:pr-12 md:col-span-1">
+                    <!-- Node -->
+                    <div class="absolute top-0 -left-[31px] md:left-auto md:-right-[7px] w-3 h-3 bg-cinered-neon rounded-full shadow-neon-red"></div>
+                    <div>
+                        <span class="text-xs text-cinered-neon font-bold tracking-widest uppercase block mb-1">Automne 2026</span>
+                        <h3 class="font-serif text-xl text-white mb-2">La Nuit du Réveil</h3>
+                        <p class="text-sm text-gray-400 font-light leading-relaxed">
+                            Mon premier long-métrage en développement. Un huis clos fantastique au cœur d'une projection fantôme, confrontant des cinéphiles à leurs propres regrets.
+                        </p>
+                        <div class="mt-4 flex flex-wrap gap-2 md:justify-end">
+                            <span class="text-[10px] uppercase tracking-wider bg-darkspace-800 border border-white/5 px-2.5 py-1 text-gray-400">Script Terminé</span>
+                            <span class="text-[10px] uppercase tracking-wider bg-darkspace-800 border border-white/5 px-2.5 py-1 text-gray-400">Financement</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty space for grid on large screens -->
+                <div class="hidden md:block md:col-span-1"></div>
+                <div class="hidden md:block md:col-span-1"></div>
+
+                <!-- Timeline Item 2 -->
+                <div class="relative pb-12 md:pb-0 md:pl-12 md:col-span-1">
+                    <!-- Node -->
+                    <div class="absolute top-0 -left-[31px] md:-left-[7px] w-3 h-3 bg-white rounded-full"></div>
+                    <div>
+                        <span class="text-xs text-gray-500 font-bold tracking-widest uppercase block mb-1">Début 2027</span>
+                        <h3 class="font-serif text-xl text-white mb-2">L'Ombre Chinoise</h3>
+                        <p class="text-sm text-gray-400 font-light leading-relaxed">
+                            Une websérie expérimentale explorant l'art des marionnettes d'ombres dans une esthétique cyber-punk monochrome.
+                        </p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <span class="text-[10px] uppercase tracking-wider bg-darkspace-800 border border-white/5 px-2.5 py-1 text-gray-500">Storyboard</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8: AIDE & SOUTIEN -->
+    <section id="soutenir" class="py-24 bg-darkspace-900 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            
+            <div class="space-y-4 mb-16 text-center">
+                <span class="text-xs tracking-[0.3em] uppercase text-cinered-neon font-semibold">PARTICIPE AUX PROJETS</span>
+                <h2 class="font-serif text-3xl md:text-5xl text-white uppercase tracking-wider">Aide & Soutien</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- Tier 1 -->
+                <div class="bg-darkspace-800 border border-white/5 p-8 shadow-cinematic flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <span class="text-xs text-gray-400 uppercase tracking-widest">Le Ticket</span>
+                        <h3 class="font-serif text-xl text-white">Mécène d'Étoiles</h3>
+                        <p class="text-xs text-gray-500">Un don direct libre pour soutenir la production indépendante et l'achat de pellicule.</p>
+                        <div class="text-3xl font-bold text-white py-4">Faire un Don</div>
+                    </div>
+                    <a href="https://paypal.me" target="_blank" class="w-full py-3 mt-6 text-center bg-transparent hover:bg-white/5 border border-white/15 text-white text-xs uppercase tracking-widest transition-colors duration-300">
+                        Soutenir via PayPal <i class="fa-brands fa-paypal ml-1"></i>
+                    </a>
+                </div>
+
+                <!-- Tier 2 -->
+                <div class="bg-darkspace-800 border border-cinered-neon shadow-neon-red p-8 flex flex-col justify-between relative">
+                    <span class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-cinered-neon text-white text-[8px] font-bold tracking-widest px-3 py-1 uppercase">Le Plus Populaire</span>
+                    <div class="space-y-4">
+                        <span class="text-xs text-cinered-neon uppercase tracking-widest font-bold">L'Espace Membre</span>
+                        <h3 class="font-serif text-xl text-white">Cinéphile Privilège</h3>
+                        <p class="text-xs text-gray-400">Accès aux making-of secrets, aux versions de montage alternatives et des invitations aux avant-premières.</p>
+                        <div class="text-3xl font-bold text-white py-4">5,00 € <span class="text-xs text-gray-400 font-normal">/ mois</span></div>
+                    </div>
+                    <a href="https://patreon.com" target="_blank" class="w-full py-3 mt-6 text-center bg-cinered-neon hover:bg-cinered-800 text-white text-xs uppercase tracking-widest font-semibold transition-colors duration-300">
+                        Devenir Membre Patreon <i class="fa-brands fa-patreon ml-1"></i>
+                    </a>
+                </div>
+
+                <!-- Tier 3 -->
+                <div class="bg-darkspace-800 border border-white/5 p-8 shadow-cinematic flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <span class="text-xs text-gray-400 uppercase tracking-widest">Le Producteur</span>
+                        <h3 class="font-serif text-xl text-white">Coproduction</h3>
+                        <p class="text-xs text-gray-500">Inscris ton nom directement au générique du film de 2026 en tant que co-producteur associé.</p>
+                        <div class="text-3xl font-bold text-white py-4">250,00 €</div>
+                    </div>
+                    <a href="#contact" class="w-full py-3 mt-6 text-center bg-transparent hover:bg-white/5 border border-white/15 text-white text-xs uppercase tracking-widest transition-colors duration-300">
+                        Nous Contacter
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9 & 10: PARTENARIATS & CONTACT -->
+    <section id="contact" class="py-24 bg-darkspace-800 relative">
+        <div class="max-w-4xl mx-auto px-6">
+            
+            <div class="space-y-4 mb-16 text-center">
+                <span class="text-xs tracking-[0.3em] uppercase text-cinered-neon font-semibold">COLLABORATION & PRESSE</span>
+                <h2 class="font-serif text-3xl md:text-5xl text-white uppercase tracking-wider">Entrons en Contact</h2>
+            </div>
+
+            <!-- Sleek Minimalist Contact Form -->
+            <form id="cinemaContactForm" onsubmit="handleContactSubmit(event)" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="relative">
+                        <input type="text" id="contactName" required class="w-full bg-transparent border-b border-white/15 focus:border-cinered-neon py-3 text-white text-sm outline-none transition-colors duration-300 placeholder-gray-500" placeholder="Ton Nom">
+                    </div>
+                    <div class="relative">
+                        <input type="email" id="contactEmail" required class="w-full bg-transparent border-b border-white/15 focus:border-cinered-neon py-3 text-white text-sm outline-none transition-colors duration-300 placeholder-gray-500" placeholder="Ton Email">
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <select id="contactSubject" class="w-full bg-darkspace-900 border border-white/10 focus:border-cinered-neon py-3 px-4 text-gray-300 text-sm outline-none transition-colors duration-300 rounded-none">
+                        <option value="partenariat">Proposition de Partenariat / Festival</option>
+                        <option value="achat">Question sur la Boutique / Livre</option>
+                        <option value="presse">Demande d'Interview / Presse</option>
+                        <option value="autre">Autre Projet Artistique</option>
+                    </select>
+                </div>
+
+                <div class="relative">
+                    <textarea id="contactMessage" rows="5" required class="w-full bg-transparent border-b border-white/15 focus:border-cinered-neon py-3 text-white text-sm outline-none transition-colors duration-300 placeholder-gray-500 resize-none" placeholder="Décris ton projet ou écris ton message..."></textarea>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="px-10 py-4 bg-cinered-neon hover:bg-cinered-800 text-white font-semibold text-xs uppercase tracking-widest shadow-neon-red hover:shadow-neon-red-strong transition-all duration-300">
+                        Envoyer le Script <i class="fa-solid fa-paper-plane ml-2"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Custom Notification Message Box -->
+            <div id="contactSuccessMsg" class="mt-6 p-4 bg-cinered-neon/10 border border-cinered-neon/40 text-cinered-neon text-sm text-center tracking-wide uppercase hidden animate-pulse">
+                <i class="fa-solid fa-circle-check mr-2"></i> Message envoyé avec succès. Nous te répondrons sous 48 heures.
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER CINÉMATOGRAPHIQUE -->
+    <footer class="bg-darkspace-900 border-t border-white/5 py-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <span class="font-serif text-lg tracking-widest text-white uppercase">
+                Romain <span class="text-cinered-neon">Martens</span>
+            </span>
+            
+            <div class="flex space-x-6 text-gray-500 hover:text-white text-xs uppercase tracking-widest">
+                <a href="#" class="hover:text-cinered-neon transition-colors">Mentions Légales</a>
+                <span class="text-white/10">|</span>
+                <a href="#" class="hover:text-cinered-neon transition-colors">Politique de Confidentialité</a>
+            </div>
+
+            <!-- Social Media Icon Block -->
+            <div class="flex space-x-4 text-gray-400">
+                <a href="https://instagram.com" target="_blank" class="hover:text-cinered-neon transition-colors"><i class="fa-brands fa-instagram text-lg"></i></a>
+                <a href="https://vimeo.com" target="_blank" class="hover:text-cinered-neon transition-colors"><i class="fa-brands fa-vimeo-v text-lg"></i></a>
+                <a href="https://youtube.com" target="_blank" class="hover:text-cinered-neon transition-colors"><i class="fa-brands fa-youtube text-lg"></i></a>
+            </div>
+        </div>
+        <div class="text-center text-[10px] text-gray-600 uppercase tracking-widest mt-8">
+            &copy; 2026 Romain Martens — Réalisateur Audiovisuel. Tous droits réservés.
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT FOR DYNAMIC IMMERSIVE WEB EXPERIENCE -->
+    <script>
+        // QUOTE DATABASE FOR DYNAMIC ROTATION
+        const quotes = [
+            "Si quelque chose n'existe pas, parfait, crée-le !",
+            "Le montage est le seul moment où le temps m'appartient vraiment.",
+            "Un bon film commence par un malaise délicat qui refuse de s'enfuir.",
+            "Dans le noir de la salle, toutes les solitudes se synchronisent."
+        ];
+        let currentQuoteIndex = 0;
+
+        function changeQuote() {
+            const quoteBox = document.getElementById('quoteBox');
+            quoteBox.style.opacity = '0';
+            setTimeout(() => {
+                currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+                quoteBox.textContent = `"${quotes[currentQuoteIndex]}"`;
+                quoteBox.style.opacity = '1';
+            }, 300);
+        }
+
+        // TONE.JS AMBIENT SOUND GENERATION FOR CINEMATIC IMMERSION
+        let isAudioPlaying = false;
+        let droneOsc, noiseNode, filterNode;
+
+        function toggleCinemaDrone() {
+            if (!isAudioPlaying) {
+                try {
+                    // Start audio context on user interaction
+                    Tone.start();
+
+                    // 1. Synthesize a deep cinema sub-drone
+                    droneOsc = new Tone.Oscillator({
+                        frequency: 48, // Deep low sub frequency
+                        type: "sine",
+                        volume: -15
+                    });
+
+                    // 2. Synthesize a soft film-grain noise static hiss
+                    noiseNode = new Tone.Noise("white");
+                    noiseNode.volume.value = -35;
+
+                    // 3. Setup a low pass filter to make the hiss feel distant
+                    filterNode = new Tone.Filter(250, "lowpass");
+
+                    // Connect chain
+                    droneOsc.connect(filterNode);
+                    noiseNode.connect(filterNode);
+                    filterNode.toDestination();
+
+                    // Start sound elements
+                    droneOsc.start();
+                    noiseNode.start();
+
+                    isAudioPlaying = true;
+                    document.getElementById('audioIcon').className = "fa-solid fa-volume-high text-cinered-neon";
+                    document.getElementById('audioToggle').title = "Désactiver l'ambiance sonore";
+                } catch (e) {
+                    console.error("Audio Synthesis Failed", e);
+                }
+            } else {
+                // Stop audio
+                if (droneOsc) droneOsc.stop();
+                if (noiseNode) noiseNode.stop();
+                isAudioPlaying = false;
+                document.getElementById('audioIcon').className = "fa-solid fa-volume-xmark text-gray-400";
+                document.getElementById('audioToggle').title = "Activer l'ambiance sonore du cinéma";
+            }
+        }
+
+        // FILM GRAIN CANVAS ANIMATION (HTML5 CANVAS)
+        const canvas = document.getElementById('grainCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function generateGrain() {
+            const width = canvas.width;
+            const height = canvas.height;
+            if (width > 0 && height > 0) {
+                const imgData = ctx.createImageData(width, height);
+                const data = imgData.data;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const grain = (Math.random() - 0.5) * 55; // Grain density adjustment
+                    data[i] = grain;     // Red
+                    data[i+1] = grain;   // Green
+                    data[i+2] = grain;   // Blue
+                    data[i+3] = 40;      // Transparency
+                }
+
+                ctx.putImageData(imgData, 0, 0);
+            }
+            requestAnimationFrame(generateGrain);
+        }
+
+        // Start animation on window load
+        window.onload = function() {
+            resizeCanvas();
+            generateGrain();
+        }
+
+        // PORTFOLIO LECTEUR VIDEO MODAL LIGHTBOX
+        function openTrailerModal(title, url) {
+            document.getElementById('modalTitle').textContent = `Bande-Annonce — ${title}`;
+            document.getElementById('trailerIframe').src = url;
+            const modal = document.getElementById('trailerModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
+        }
+
+        function closeTrailerModal() {
+            const modal = document.getElementById('trailerModal');
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('trailerIframe').src = '';
+        }
+
+        // INTERACTIVE SHOPPING CART STATE & FUNCTIONS
+        let cart = [];
+
+        function updateCartUI() {
+            const cartContainer = document.getElementById('cartItemsContainer');
+            const cartCountLabel = document.getElementById('cartCount');
+            const cartTotalLabel = document.getElementById('cartTotalPrice');
+
+            if (cart.length === 0) {
+                cartContainer.innerHTML = `<p class="text-gray-400 text-sm italic py-4">Le panier est vide pour l'instant.</p>`;
+                cartCountLabel.classList.add('hidden');
+                cartTotalLabel.textContent = "0,00 €";
+                return;
+            }
+
+            // Populate cart items
+            cartCountLabel.classList.remove('hidden');
+            cartCountLabel.textContent = cart.length;
+
+            let html = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price;
+                html += `
+                    <div class="flex justify-between items-center bg-darkspace-800 p-4 border border-white/5">
+                        <div>
+                            <h4 class="text-sm font-medium text-white">${item.name}</h4>
+                            <span class="text-xs text-cinered-neon font-semibold">${item.price.toFixed(2)} €</span>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-gray-500 hover:text-cinered-neon p-2">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                `;
+            });
+
+            cartContainer.innerHTML = html;
+            cartTotalLabel.textContent = `${total.toFixed(2)} €`;
+        }
+
+        function addProductToCart(name, price) {
+            cart.push({ name, price });
+            updateCartUI();
+            
+            // Auto open cart drawer as visual confirmation
+            const drawer = document.getElementById('cartDrawer');
+            drawer.classList.remove('translate-x-full');
+        }
+
+        // New function for film rental
+        function rentFilm(title, price) {
+            // This currently simulates the action, you can later replace this with a Stripe or PayPal link
+            const contactSuccessMsg = document.getElementById('contactSuccessMsg');
+            contactSuccessMsg.innerHTML = `<i class="fa-solid fa-film mr-2"></i> Location de "${title}" à ${price.toFixed(2)} € initiée. Redirection vers le paiement...`;
+            contactSuccessMsg.classList.remove('hidden');
+            
+            setTimeout(() => {
+                contactSuccessMsg.classList.add('hidden');
+                // Here you would trigger the actual payment gateway (Stripe/PayPal)
+            }, 4000);
+        }
+
+        function addBookToCart() {
+            addProductToCart('Livre "Le Triangle Rouge"', 13.50);
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cartDrawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        function toggleExcerptDrawer() {
+            const drawer = document.getElementById('excerptDrawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        function checkoutSimulate() {
+            if (cart.length === 0) return;
+            // Simulated secure checkout notification
+            const drawer = document.getElementById('cartDrawer');
+            drawer.classList.add('translate-x-full');
+            
+            // Display clean visual notification
+            const contactSuccessMsg = document.getElementById('contactSuccessMsg');
+            contactSuccessMsg.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Simulation d'achat réussie ! Merci pour ton soutien cinématographique.`;
+            contactSuccessMsg.classList.remove('hidden');
+            setTimeout(() => {
+                contactSuccessMsg.classList.add('hidden');
+            }, 6000);
+
+            cart = [];
+            updateCartUI();
+        }
+
+        // L'ENTRACTE SEAT BOOKING SYSTEM
+        let selectedSeats = [];
+        const ticketPrice = 12.00;
+
+        function toggleSeat(btn, seatNumber) {
+            if (btn.classList.contains('bg-cinered-neon')) {
+                // Deselect
+                btn.classList.remove('bg-cinered-neon', 'text-white', 'shadow-neon-red');
+                btn.classList.add('bg-darkspace-700', 'text-gray-400');
+                selectedSeats = selectedSeats.filter(seat => seat !== seatNumber);
+            } else {
+                // Select
+                btn.classList.remove('bg-darkspace-700', 'text-gray-400');
+                btn.classList.add('bg-cinered-neon', 'text-white', 'shadow-neon-red');
+                selectedSeats.push(seatNumber);
+            }
+
+            updateBookingUI();
+        }
+
+        function updateBookingUI() {
+            const seatsLabel = document.getElementById('selectedSeatsLabel');
+            const priceLabel = document.getElementById('seatsTotalPrice');
+            const bookBtn = document.getElementById('bookSeatsBtn');
+
+            if (selectedSeats.length === 0) {
+                seatsLabel.textContent = "Aucun";
+                priceLabel.textContent = "0,00 €";
+                bookBtn.disabled = true;
+            } else {
+                seatsLabel.textContent = selectedSeats.join(', ');
+                priceLabel.textContent = `${(selectedSeats.length * ticketPrice).toFixed(2)} €`;
+                bookBtn.disabled = false;
+            }
+        }
+
+        function bookSelectedSeats() {
+            if (selectedSeats.length === 0) return;
+
+            // Generate clean feedback
+            const contactSuccessMsg = document.getElementById('contactSuccessMsg');
+            contactSuccessMsg.innerHTML = `<i class="fa-solid fa-ticket mr-2"></i> Réservation simulée pour les sièges : ${selectedSeats.join(', ')}. À bientôt au Studio Noir !`;
+            contactSuccessMsg.classList.remove('hidden');
+            
+            // Clear selection
+            selectedSeats = [];
+            document.querySelectorAll('#entracte .bg-cinered-neon').forEach(btn => {
+                btn.classList.remove('bg-cinered-neon', 'text-white', 'shadow-neon-red');
+                btn.classList.add('bg-cinered-neon/10', 'border-cinered-neon/30', 'text-cinered-neon', 'cursor-not-allowed', 'opacity-30');
+                btn.disabled = true; // Simulates marked as booked
+            });
+            updateBookingUI();
+
+            setTimeout(() => {
+                contactSuccessMsg.classList.add('hidden');
+            }, 6000);
+        }
+
+        // CONTACT FORM HANDLER
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            
+            // Simulated form sending success UI
+            document.getElementById('contactSuccessMsg').classList.remove('hidden');
+            document.getElementById('cinemaContactForm').reset();
+
+            setTimeout(() => {
+                document.getElementById('contactSuccessMsg').classList.add('hidden');
+            }, 5000);
+        }
+
+        // MOBILE NAVIGATION BAR TOGGLE
+        function toggleMobileNav() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('opacity-0');
+            menu.classList.toggle('pointer-events-none');
+        }
+    </script>
+</body>
+</html>
